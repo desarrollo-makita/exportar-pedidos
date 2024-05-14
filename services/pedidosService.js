@@ -85,7 +85,7 @@ async function exportarPedido(pedidoExportar){
         
         let idPedido = pedidoExportar.FolioExterno;
         logger.info(`Iniciamos funcion exportarPedido ${idPedido} `);
-        const url = `https://api2.telecontrol.com.br/posvenda-pedido/pedidos/pedido/1`;
+        const url = `https://api2.telecontrol.com.br/posvenda-pedido/pedidos/pedido/48935877`;
 
         const headers = {
             'Content-Type': 'application/json',
