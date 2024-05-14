@@ -2,6 +2,7 @@ const sql = require('mssql');
 const { connectToDatabase, closeDatabaseConnection } = require('../config/database.js');
 const mock = require('../config/mock.js');
 const logger = require('../config/logger.js'); // Importa el logger
+const axios = require('axios');
 
 
 
@@ -13,6 +14,7 @@ const logger = require('../config/logger.js'); // Importa el logger
  */
 async function obtenerPedidos(){
     try {
+        logger.info('Inicio de la función obtenerPedidos [pedidosService]');
         await connectToDatabase('Telecontrol');
 
         const consulta = `SELECT Folio,Empresa , TipoDocumento,Entidad,Correlativo,NumeroDocumento , StatusDescripcion FROM Telecontrol.dbo.Pedidos`;
@@ -34,7 +36,8 @@ async function obtenerPedidos(){
  */
 async function consultarEstadoPedido(pedido){
     try {
-        const ETAPA = 'Inicio';
+        logger.info(`Inicio de la función consultarEstadoPedido [pedidosService] data : ${JSON.stringify(pedido)}`);
+       
         const data =  {
             folio : pedido.Folio,
             empresa : pedido.Empresa,
@@ -43,6 +46,7 @@ async function consultarEstadoPedido(pedido){
 
         }
 
+        logger.debug(`request : ${JSON.stringify(data)}`);
         await connectToDatabase('DTEBdQMakita');
 
         const consulta = `SELECT FolioExterno, Empresa, TipoDocumento, Correlativo, Etapa, Entidad
@@ -50,17 +54,21 @@ async function consultarEstadoPedido(pedido){
         WHERE FolioExterno = '${data.folio}'
         and Empresa = '${data.empresa}'
         and TipoDocumento = '${data.tipoDocumento}'
-        and Correlativo =${data.correlativo}
-        and Etapa= '${ETAPA}'`;
+        and Correlativo =${data.correlativo}`;
+        
+        logger.debug(` consulta  : ${consulta}`);
+        
         
         const result = await sql.query(consulta);
-
+        
+        logger.debug(`result : ${JSON.stringify(result)}`);
+        
         await closeDatabaseConnection();
 
         return result.recordset[0];
     
     } catch (error) {
-        console.error('Error al consultar tabla documento:', error.message);
+        logger.error(`Error consultaPedido : ${JSON.stringify(error.message)}`);
         throw error;
     }
 }
@@ -72,28 +80,30 @@ async function consultarEstadoPedido(pedido){
  */
 async function exportarPedido(pedidoExportar){
     try{
+
+        logger.info(`Iniciamos funcion exportarPedido `);
         
         let idPedido = pedidoExportar.FolioExterno;
-        console.log("este es el pedido que se va a exportasr" , idPedido);
-        /*const url = `https://api2.telecontrol.com.br/posvenda-pedido/pedidos/pedido/${idPedido}`;
-        
-        const response = await axios.put( url, {
-            headers: {
-                'Content-Type': 'application/json',
-                'Access-Application-Key': '3d137dea1d13220aa9a10ee57d69f6b30d247f28',
-                'Access-Env': 'HOMOLOGATION',
-                'X-Custom-Header': 'value'
-            }
-        })*/
+        logger.info(`Iniciamos funcion exportarPedido ${idPedido} `);
+        const url = `https://api2.telecontrol.com.br/posvenda-pedido/pedidos/pedido/1`;
 
-        let response = mock.responseExportarPedido;
-       
-        response.numeroReal = idPedido; 
+        const headers = {
+            'Content-Type': 'application/json',
+            'Access-Application-Key': '3d137dea1d13220aa9a10ee57d69f6b30d247f28',
+            'Access-Env': 'HOMOLOGATION',
+            'X-Custom-Header': 'value' // Este es el encabezado adicional que está presente en tu solicitud de Postman
+        };
         
+        logger.info(`Url  ${url} `);
+        
+        const response = await axios.put(url, {}, { headers });
+        
+        logger.debug(`Respuesta de la API exportar pedido ${response.data}`);
+        console.log("----------------->" ,response.data);
         return response;
 
     }catch (error) {
-        console.error('Error al exportar pedidos:', error.message);
+        logger.error(`Error al exportar pedidos: ${ error}`);
         throw error;
     }
 }

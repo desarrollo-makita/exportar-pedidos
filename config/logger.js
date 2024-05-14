@@ -1,10 +1,11 @@
 const winston = require('winston');
-const { combine, timestamp, printf } = winston.format;
+const { combine, timestamp, printf, json } = winston.format;
 
 const logger = winston.createLogger({
-  level: 'info',
+  level: 'debug',
   format: combine(
     timestamp(),
+    json(),
     printf(({ level, message, timestamp }) => {
       return `${timestamp} [${level.toUpperCase()}]: ${message}`;
     })
