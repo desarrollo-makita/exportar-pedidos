@@ -38,7 +38,7 @@ async function exportOrder(req, res) {
             res.status(404).json({ mensaje: 'No existe data para Exportar' });
         }
     } catch (error) {
-        logger.error(`Error al obtener los documentos [exportarPedidoControllers]: ${error}`);
+        logger.error(`Error al obtener los documentos [exportarPedidoControllers]: ${JSON.stringify(error)}`);
       
         res.status(500).json({ mensaje: 'Error interno del servidor' });
     }
