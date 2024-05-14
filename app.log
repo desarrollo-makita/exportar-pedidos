@@ -1,0 +1,10 @@
+2024-05-14T12:59:47.941Z [INFO]: Inicio [exportarPedidoControllers]- [exportOrder]
+2024-05-14T12:59:47.943Z [INFO]: Inicio [pedidosService]- [obtenerPedidos]
+2024-05-14T12:59:47.971Z [INFO]: [pedidosService]- [result] [object Object]
+2024-05-14T12:59:47.974Z [INFO]: [exportarPedidoControllers]- [response]
+2024-05-14T12:59:47.974Z [INFO]: Consultando estado del pedido [object Object]
+2024-05-14T13:00:35.254Z [INFO]: Inicio [exportarPedidoControllers]- [exportOrder]
+2024-05-14T13:00:35.256Z [INFO]: Inicio [pedidosService]- [obtenerPedidos]
+2024-05-14T13:00:35.287Z [INFO]: [pedidosService]- [result] [object Object]
+2024-05-14T13:00:35.289Z [INFO]: [exportarPedidoControllers]- [response]
+2024-05-14T13:00:35.290Z [INFO]: Consultando estado del pedido 119376
