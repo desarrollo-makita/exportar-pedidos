@@ -19,7 +19,7 @@ async function obtenerPedidos(){
 
         const consulta = `SELECT Folio,Empresa , TipoDocumento,Entidad,Correlativo,NumeroDocumento , StatusDescripcion FROM Telecontrol.dbo.Pedidos`;
         const result = await sql.query(consulta);
-        
+        logger.debug(`result ${JSON.stringify(result)}`);
         await closeDatabaseConnection();
         
         return result.recordset;
@@ -36,7 +36,7 @@ async function obtenerPedidos(){
  */
 async function consultarEstadoPedido(pedido){
     try {
-        logger.info(`Inicio de la función consultarEstadoPedido [pedidosService] data : ${JSON.stringify(pedido)}`);
+        logger.info(`Inicio de la función consultarEstadoPedido [pedidosService] : ${JSON.stringify(pedido)}`);
        
         const data =  {
             folio : pedido.Folio,
@@ -79,32 +79,35 @@ async function consultarEstadoPedido(pedido){
  * @returns 
  */
 async function exportarPedido(pedidoExportar){
+    let idPedido = pedidoExportar.FolioExterno;
     try{
-
-        logger.info(`Iniciamos funcion exportarPedido `);
-        
-        let idPedido = pedidoExportar.FolioExterno;
-        logger.info(`Iniciamos funcion exportarPedido ${idPedido} `);
-        const url = `https://api2.telecontrol.com.br/posvenda-pedido/pedidos/pedido/48935877`;
+       
+        logger.info(`Iniciamos funcion exportarPedido : ${idPedido}`);
+        const url = `https://api2.telecontrol.com.br/posvenda-pedido/pedidos/pedido/${idPedido}`;
 
         const headers = {
             'Content-Type': 'application/json',
             'Access-Application-Key': '3d137dea1d13220aa9a10ee57d69f6b30d247f28',
             'Access-Env': 'HOMOLOGATION',
-            'X-Custom-Header': 'value' // Este es el encabezado adicional que está presente en tu solicitud de Postman
         };
         
         logger.info(`Url  ${url} `);
         
         const response = await axios.put(url, {}, { headers });
         
-        logger.debug(`Respuesta de la API exportar pedido ${response.data}`);
-        console.log("----------------->" ,response.data);
-        return response;
+        logger.debug(`Respuesta de la API exportar pedido ${JSON.stringify(response.status)}`);
+        response.data.status = response.status;
+       
+        return response.data;
 
     }catch (error) {
-        logger.error(`Error al exportar pedidos: ${ error}`);
-        throw error;
+        if (error.response && error.response.status != 200) {
+            // Realiza acciones específicas para el código de estado 404
+            console.log("La solicitud no se encontró en el servidor #################", error.response.data , idPedido);
+            return {error : error.response.data , pedido : idPedido , status:  error.response.status  };
+           
+        }
+       
     }
 }
 
