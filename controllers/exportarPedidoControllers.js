@@ -1,4 +1,4 @@
-const { obtenerPedidos, consultarEstadoPedido, exportarPedido} = require('../services/pedidosService.js');
+const { obtenerPedidos, consultarEstadoPedido, exportarPedido , updatePedido} = require('../services/pedidosService.js');
 const mock = require('../config/mock.js');
 const logger = require('../config/logger.js');
 
@@ -27,6 +27,8 @@ async function exportOrder(req, res) {
                     if(exportarRes.status === 200){
                         arrayDataExportada.push(exportarRes.pedido);
                         logger.info(`Lista de pedidos exportados con exito : ${JSON.stringify((arrayDataExportada))}` );
+                        let updatepedido = await updatePedido(exportarRes.pedido);
+                        logger.info(`UPDATE  ${JSON.stringify(updatepedido)} `);
                     }else{
                        arrayDataNoExportada.push(exportarRes.pedido);
                        logger.info(`Lista de pedidos NO exportados : ${JSON.stringify((arrayDataNoExportada))}` );

@@ -17,7 +17,7 @@ async function obtenerPedidos(){
         logger.info('Inicio de la función obtenerPedidos [pedidosService]');
         await connectToDatabase('Telecontrol');
 
-        const consulta = `SELECT Folio,Empresa , TipoDocumento,Entidad,Correlativo,NumeroDocumento , StatusDescripcion FROM Telecontrol.dbo.Pedidos`;
+        const consulta = `SELECT Folio,Empresa , TipoDocumento,Entidad,Correlativo,NumeroDocumento , StatusDescripcion, Exportado FROM Telecontrol.dbo.Pedidos where  Exportado <> '1'`;
         const result = await sql.query(consulta);
         logger.debug(`result ${JSON.stringify(result)}`);
         await closeDatabaseConnection();
@@ -102,8 +102,6 @@ async function exportarPedido(pedidoExportar){
 
     }catch (error) {
         if (error.response && error.response.status != 200) {
-            // Realiza acciones específicas para el código de estado 404
-            console.log("La solicitud no se encontró en el servidor #################", error.response.data , idPedido);
             return {error : error.response.data , pedido : idPedido , status:  error.response.status  };
            
         }
@@ -111,7 +109,26 @@ async function exportarPedido(pedidoExportar){
     }
 }
 
+async function updatePedido(idPedido){
+try {
+
+    await connectToDatabase('Telecontrol');
+    const responseUpdate  = await sql.query(`UPDATE Telecontrol.dbo.Pedidos SET Exportado = '1' WHERE ID_Pedido  = '${idPedido}'`);
+
+    logger.info(`Pedido ${idPedido} actualizado correctamente.`);
+    await closeDatabaseConnection();
+    return responseUpdate;
+                        
+} catch (error) {
+
+    logger.error(`Error al actualizar el pedido ${idPedido}: ${error.message}`);
+    
+    throw error;
+    
+}
+}
+
 
 module.exports = {
-    obtenerPedidos , consultarEstadoPedido , exportarPedido
+    obtenerPedidos , consultarEstadoPedido , exportarPedido ,updatePedido
 };
