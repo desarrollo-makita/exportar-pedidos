@@ -31,12 +31,18 @@ module.exports = {
     ],
     
     responseExportarPedido :{
-        "pedido": 49090833,
-        "exportado": {
-            "date": "2024-05-13 15:25:31.915844",
-            "timezone_type": 3,
-            "timezone": "America/Sao_Paulo-ejemplo"
-        }
+        data:{
+            "pedido": 49090833,
+            "exportado": {
+                "date": "2024-05-13 15:25:31.915844",
+                "timezone_type": 3,
+                "timezone": "America/Sao_Paulo-ejemplo"
+            },
+       
+
+        },
+        status:200
+        
     },
     
    

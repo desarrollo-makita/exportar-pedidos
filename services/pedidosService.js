@@ -17,7 +17,10 @@ async function obtenerPedidos(){
         logger.info('Inicio de la función obtenerPedidos [pedidosService]');
         await connectToDatabase('Telecontrol');
 
-        const consulta = `SELECT Folio,Empresa , TipoDocumento,Entidad,Correlativo,NumeroDocumento , StatusDescripcion, Exportado FROM Telecontrol.dbo.Pedidos where  Exportado <> '1'`;
+        const consulta = `SELECT Folio, Empresa, TipoDocumento, Entidad, Correlativo, NumeroDocumento, StatusDescripcion, Exportado 
+        FROM Telecontrol.dbo.Pedidos 
+        WHERE Exportado IS NULL OR Exportado <> '1';`;
+        
         const result = await sql.query(consulta);
         logger.debug(`result ${JSON.stringify(result)}`);
         await closeDatabaseConnection();
