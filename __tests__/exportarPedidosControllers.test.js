@@ -1,5 +1,5 @@
-const { obtenerPedidos } = require('../services/pedidosService.js');
-const { getLinkDocument } = require('../controllers/getLinkDocumentControllers');
+const { obtenerPedidos, consultarEstadoPedido, exportarPedido ,updatePedido } = require('../services/pedidosService.js');
+const { exportOrder } = require('../controllers/exportarPedidoControllers.js');
 const mock = require('../config/mock.js');
 
 jest.mock('../services/pedidosService.js');
@@ -10,90 +10,153 @@ describe('exportarPedidos', () => {
     jest.clearAllMocks();
   });
 
-  it('proceso exitoso 200', async () => {
+  it('proceso exitoso 404 No existe data para Exportar', async () => {
     // Mockear la respuesta de obtenerPedidos
-    obtenerPedidos.mockResolvedValueOnce(mock.pedidos);
-    obtenerDocumento.mockResolvedValueOnce(mock.responseDocumento);
+    obtenerPedidos.mockResolvedValueOnce(mock.responseObtenerEmpty);
+   
 
     // Simular solicitud y respuesta
-    const req = { params: { idPedido: '123456' } }; // Asegúrate de pasar correctamente el idPedido aquí
+    const req =  {};
     const res = {
         status: jest.fn().mockReturnThis(),
         json: jest.fn(),
     };
 
     // Llamar a la función a probar
-    await getLinkDocument(req, res);
+    await exportOrder(req, res);
 
     // Verificar que la función responda con el estado 404 y el mensaje adecuado
+    expect(res.status).toHaveBeenCalledWith(404);
+    expect(res.json).toHaveBeenCalledWith({ mensaje: 'No existe data para Exportar' });
+  });
+
+  it('proceso exitoso 200 proceso exitoso', async () => {
+    // Mockear la respuesta de obtenerPedidos
+    obtenerPedidos.mockResolvedValueOnce([
+      { id: 1, Folio: '49091285' },
+      { id: 2, Folio: '49091286' }
+    ]);
+    consultarEstadoPedido
+    .mockResolvedValueOnce({FolioExterno: '49091285',Etapa: 'Procesado'})
+    .mockResolvedValueOnce({FolioExterno: '49091286',Etapa: 'Procesado'});
+  
+    // Mock de exportarPedido para devolver éxito en la exportación
+    exportarPedido.mockResolvedValueOnce({ status: 200, pedido: '49091285' });
+    exportarPedido.mockResolvedValueOnce({ status: 200, pedido: '49091286' });
+
+    updatePedido.mockResolvedValueOnce({ status: 'updated' });
+    updatePedido.mockResolvedValueOnce({ status: 'updated' });
+
+   
+
+    // Simular solicitud y respuesta
+    const req =  {};
+    const res = {
+        status: jest.fn().mockReturnThis(),
+        json: jest.fn(),}
+  
+
+    // Llamar a la función a probar
+    await exportOrder(req, res);
+
+    // Verificar que la función responda con el estado 200 y el mensaje adecuado
     expect(res.status).toHaveBeenCalledWith(200);
     expect(res.json).toHaveBeenCalledWith({
-      pedido: mock.responseDocumento.FolioExterno,
-      entidad: mock.responseDocumento.Entidad,
-      correlativo: mock.responseDocumento.Correlativo,
-      url: mock.responseDocumento.URL
+      pedidosExportados: ['49091285', '49091286'],
+      pedidosNoExportados: []
     });
   });
 
-  it('proceso exitoso 200', async () => {
+  it('proceso distinto a 200 entra al else arrayDataNoExportada ', async () => {
     // Mockear la respuesta de obtenerPedidos
-    obtenerPedidos.mockResolvedValueOnce(mock.pedidos);
-    obtenerDocumento.mockResolvedValueOnce(mock.responseDocumentoNull);
+    obtenerPedidos.mockResolvedValueOnce([
+      { id: 1, Folio: '49091285' },
+      { id: 2, Folio: '49091286' }
+    ]);
+    consultarEstadoPedido
+    .mockResolvedValueOnce({FolioExterno: '49091285',Etapa: 'Procesado'})
+    .mockResolvedValueOnce({FolioExterno: '49091286',Etapa: 'Procesado'});
+  
+    // Mock de exportarPedido para devolver éxito en la exportación
+    exportarPedido.mockResolvedValueOnce({ status: 400, pedido: '49091285' });
+    exportarPedido.mockResolvedValueOnce({ status: 400, pedido: '49091286' });
+
+    updatePedido.mockResolvedValueOnce({ status: 'updated' });
+    updatePedido.mockResolvedValueOnce({ status: 'updated' });
+
+   
 
     // Simular solicitud y respuesta
-    const req = { params: { idPedido: '123456' } }; // Asegúrate de pasar correctamente el idPedido aquí
+    const req =  {};
     const res = {
         status: jest.fn().mockReturnThis(),
-        json: jest.fn(),
-    };
+        json: jest.fn(),}
+  
 
     // Llamar a la función a probar
-    await getLinkDocument(req, res);
+    await exportOrder(req, res);
 
-    // Verificar que la función responda con el estado 404 y el mensaje adecuado
-    expect(res.status).toHaveBeenCalledWith(404);
-    expect(res.json).toHaveBeenCalledWith({mensaje: 'No se encontro documento para el correlativo 119343'});
+    // Verificar que la función responda con el estado 200 y el mensaje adecuado
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith({
+      pedidosExportados: [],
+      pedidosNoExportados: ['49091285', '49091286']
+  });
   });
 
- 
-
-  it('no se encuentran pedidos por numero de pedido 404', async () => {
+  it('proceso con etapa distinta a Procesado ', async () => {
     // Mockear la respuesta de obtenerPedidos
-    obtenerPedidos.mockResolvedValueOnce(mock.pedidosNotFound);
+    obtenerPedidos.mockResolvedValueOnce([
+      { id: 1, Folio: '49091285' },
+      { id: 2, Folio: '49091286' }
+    ]);
+    consultarEstadoPedido
+      .mockResolvedValueOnce({FolioExterno: '49091285',Etapa: 'Inicio'})
+      .mockResolvedValueOnce({FolioExterno: '49091286',Etapa: 'Inicio'});
+  
+    // Mock de exportarPedido para devolver éxito en la exportación
+    exportarPedido.mockResolvedValueOnce({ status: 400, pedido: '49091285' });
+    exportarPedido.mockResolvedValueOnce({ status: 400, pedido: '49091286' });
+
+    updatePedido.mockResolvedValueOnce({ status: 'updated' });
+    updatePedido.mockResolvedValueOnce({ status: 'updated' });
+
+   
 
     // Simular solicitud y respuesta
-    const req = { params: { idPedido: '123456' } }; // Asegúrate de pasar correctamente el idPedido aquí
+    const req =  {};
     const res = {
         status: jest.fn().mockReturnThis(),
-        json: jest.fn(),
-    };
+        json: jest.fn(),}
+  
 
     // Llamar a la función a probar
-    await getLinkDocument(req, res);
+    await exportOrder(req, res);
 
-    // Verificar que la función responda con el estado 404 y el mensaje adecuado
-    expect(res.status).toHaveBeenCalledWith(404);
-    expect(res.json).toHaveBeenCalledWith({ mensaje: 'No se encontro el pedido 123456' });
+    // Verificar que la función responda con el estado 200 y el mensaje adecuado
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith({
+      pedidosExportados: [],
+      pedidosNoExportados: ['49091285', '49091286']
+    });
   });
 
+  it('maneja errores correctamente', async () => {
+    // Mock para lanzar un error al llamar a obtenerPedidos
+    obtenerPedidos.mockRejectedValueOnce(new Error('Error de prueba'));
 
-  it('maneja correctamente los errores', async () => {
-    // Mockear la respuesta de obtenerPedidos para que arroje una excepción
-    obtenerPedidos.mockRejectedValueOnce(new Error('Error al obtener pedidos'));
-
-    // Simular solicitud y respuesta
-    const req = { params: { idPedido: '123456' } };
+    const req = {};
     const res = {
         status: jest.fn().mockReturnThis(),
-        json: jest.fn(),
+        json: jest.fn()
     };
 
-    // Llamar a la función a probar
-    await getLinkDocument(req, res);
+    await exportOrder(req, res);
 
-    // Verificar que la función responda con el estado 500 y el mensaje adecuado
+    // Verificar que la respuesta tenga el código y mensaje correctos
     expect(res.status).toHaveBeenCalledWith(500);
     expect(res.json).toHaveBeenCalledWith({ mensaje: 'Error interno del servidor' });
 });
+ 
 
 });

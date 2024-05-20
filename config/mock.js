@@ -1,3 +1,5 @@
+
+// Controlador
 module.exports = {
 
     responseObtenerPedidos: [
@@ -49,5 +51,65 @@ module.exports = {
     responseBadRequest :{
         "exception": "Exception",
         "message": "Pedido jÃ¡ exportado"
+    },
+
+    responseObtenerEmpty: [],
+
+    responseEstadoPedido : {
+        "FolioExterno":"49091286",
+        "Empresa":"Makita",
+        "TipoDocumento":"NOTA DE VTA INTERNA",
+        "Correlativo":120498,
+        "Etapa":"Inicio",
+        "Entidad":"76279534-5"
+    },
+
+    //Services
+    pedidosServices:{
+        "recordsets":
+        [
+            [
+                {
+                    "Folio":49091286,
+                    "Empresa":"Makita",
+                    "TipoDocumento":"NOTA DE VTA INTERNA",
+                    "Entidad":"76279534-5","Correlativo":120498,
+                    "NumeroDocumento":"3",
+                    "StatusDescripcion":"Aguardando Exportação",
+                    "Exportado":null
+                }
+            ]
+        ],
+        "recordset":
+        [
+            {
+                "Folio":49091286,"Empresa":"Makita",
+                "TipoDocumento":"NOTA DE VTA INTERNA",
+                "Entidad":"76279534-5",
+                "Correlativo":120498,
+                "NumeroDocumento":"3",
+                "StatusDescripcion":"Aguardando Exportação",
+                "Exportado":null
+            }
+        ],
+        "output":{},
+        "rowsAffected":[1]
+    },
+    consultarPedidoService:{
+        "recordset":
+        [
+            {
+                "FolioExterno":"49091286",
+                "Empresa":"Makita",
+                "TipoDocumento":"NOTA DE VTA INTERNA",
+                "Correlativo":120498,
+                "Etapa":"Inicio",
+                "Entidad":"76279534-5"
+            }
+        ]
+       
     }
+    
+
 };
+

@@ -13,11 +13,10 @@ async function exportOrder(req, res) {
         
         if(response.length > 0 ){
             for(pedido of response){
-              
-                 const responseEstadoPedido  = await consultarEstadoPedido(pedido);
-                 logger.debug(`responseEstadoPedido : ${JSON.stringify(responseEstadoPedido)}`);
+                const responseEstadoPedido  = await consultarEstadoPedido(pedido);
+                logger.debug(`responseEstadoPedido : ${JSON.stringify(responseEstadoPedido)}`);
                 
-                if (responseEstadoPedido.Etapa === "Procesado NV Interna" || responseEstadoPedido.Etapa === "Procesado") {
+                if (responseEstadoPedido && (responseEstadoPedido.Etapa === "Procesado NV Interna" || responseEstadoPedido.Etapa === "Procesado")) {
                     
                     logger.info(`Pedido a exportar ${JSON.stringify(responseEstadoPedido.FolioExterno)} `);
                     
@@ -35,17 +34,13 @@ async function exportOrder(req, res) {
                     }
                 
                 }else{
-                    
                     logger.info(`El pedido ${JSON.stringify(responseEstadoPedido.FolioExterno)} Se encuentra en etapa ${JSON.stringify(responseEstadoPedido.Etapa)} `);
                     arrayDataNoExportada.push(responseEstadoPedido.FolioExterno);
-
-                     
                 }
             }
          
         res.status(200).json({pedidosExportados : arrayDataExportada , pedidosNoExportados: arrayDataNoExportada });
-        //logger.info(`Se exportaron los pedidos con Exito los siguientes pedidos ${JSON.stringify(dataExportar)} `); 
-           
+        
         }else{
             logger.info('No existe data para Exportar');
             res.status(404).json({ mensaje: 'No existe data para Exportar' });
