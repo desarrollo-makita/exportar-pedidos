@@ -2,6 +2,7 @@ const express = require('express');
 const { connectToDatabase } = require('./config/database');
 const routes = require('./routes/routes');
 require('dotenv').config();
+const { startCronJobs } = require('./config/cronJobs');
 
 const app = express();
 const PORT = process.env.PORT || 3002;
@@ -22,6 +23,8 @@ app.use('/api', routes);
 connectToDatabase().then(() => {
     app.listen(PORT, () => {
         console.log(`Servidor escuchando en el puerto ${PORT}`);
+
+        startCronJobs();
     });
 }).catch(error => {
     console.error('Error al iniciar el servidor:', error);
